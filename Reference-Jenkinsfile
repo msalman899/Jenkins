@@ -1,0 +1,77 @@
+pipeline {
+	agent any
+	
+	environment {
+		var1=''
+		var2=''
+		var3=$(sh 'dynamic var')
+		secret_var= credentials('stored_varname_in_jenkins')
+	
+	}
+	
+	stages {		
+		stage('checkout') {
+			steps {
+				sh 'echo "hello $var"'
+				retry(3) {   // retry this step 3 times on failure
+					timeout(time: 30, unit: 'MINUTES') { // timeout this step in 30mins if not completed
+						sh 'checking out code'
+					}
+				}
+			}
+		}
+		
+		stage('building code') {
+			steps {
+				sh 'echo "hello $var"'
+				sh 'echo "hello $var"'
+			}
+		}
+		
+		stage('test code') {
+			steps {
+				sh 'echo hello $var'
+				sh '''
+					echo "hello $var"
+					ls -la
+				   '''
+			}
+		}
+
+		stage('deploy to staging') {
+			steps {
+				sh 'echo "hello $var"'
+			}
+		}		
+		
+		stage('further testing in parallel') {
+			steps {
+				sh 'echo "hello $var"'
+			}
+		}	
+		
+		input "Deploy to Prod"
+		
+		stage('Deploy to production') {
+			steps {
+				sh 'echo "hello $var"'
+			}
+		}	
+	}
+	
+	post {
+	
+		always {
+			sh 'echo "i will always execute"'			
+		}
+		success {
+			sh 'echo "i will only execute if success"'	
+		}
+		failure {
+			sh 'echo "i will only execute if fails"'	
+		}
+		unstable {
+			sh 'echo "i will only execute if job is unstable"'	
+		}
+	}
+}
