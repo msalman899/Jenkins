@@ -29,14 +29,25 @@ pipeline {
 		}
 		
 		stage('test code') {
-			steps {
-				sh 'echo hello $var'
-				sh '''
-					echo "hello $var"
-					ls -la
-				   '''
-			}
-		}
+		    parallel {
+		        stage('Test 1') {
+		            steps {
+			            sh '''
+			            echo "executing test1"
+			            ls -la
+			            '''
+			        }
+			    }
+                	stage('Test 2') {
+		            steps {
+			            sh '''
+			            echo "executing test2"
+			            ls -la
+			            '''
+			        }
+			    }
+		    }
+        }
 
 		stage('deploy to staging') {
 			steps {
@@ -48,7 +59,16 @@ pipeline {
 			steps {
 				sh 'echo "hello $var"'
 			}
-		}	
+		}
+        post {
+	        success {
+			    sh 'echo "i will only execute if success"'	
+		    }
+		    failure {
+			    sh 'echo "i will only execute if fails"'	
+		    }
+
+	    }	
 		
 		input "Deploy to Prod"
 		
